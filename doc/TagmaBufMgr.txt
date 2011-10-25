@@ -1,0 +1,237 @@
+*TagmaBufMgr.txt*      For Vim version 7.x.    Last Change: Thu, Oct 6, 2011
+
+                   https://github.com/LStinson/TagmaBufMgr
+                        By Lorance Stinson AT Gmail...
+
+Buffer Manager                                  *tagmabufmgr*
+
+Contents:
+	Description				|tagmabufmgr-description|
+	Installation				|tagmabufmgr-installation|
+	Features				|tagmabufmgr-features|
+	Commands				|tagmabufmgr-commands|
+	Usage					|tagmabufmgr-usage|
+	Key Mappings				|tagmabufmgr-mappings|
+	Settings				|tagmabufmgr-settings|
+
+==============================================================================
+DESCRIPTION					*tagmabufmgr-description*
+
+Simple Buffer Manager similar to Mini Buffer Explorer. The interface and code
+is kept as simple as possible. Several ideas are borrowed but all code is
+original.
+
+==============================================================================
+INSTALLATION					*tagmabufmgr-installation*
+
+Copy the files to your ~/.vim or ~/vimfiles directory.
+If using a package manager like pathogen place the whole directory in the
+bundle directory.
+
+==============================================================================
+FEATURES					*tagmabufmgr-features*
+
+Smaller code base and as little code run on updates as possible. For example
+the modification check that is performed after the |CursorHold| interval tries
+to bail out as fast as possible if there is no change to the modification
+state.
+
+As much information as possible is cached for each buffer. This allows some
+updates to perform very few actions. Unfortunately there are rare cases where
+this causes stale data to display in the Buffer Window. Using the Manager
+Refresh or switching to the Manager Window clears this data.
+
+Addition to the Right-Click PopUp menu. Menu items are added to toggle the
+Manager Window, Refresh the Manager Window and switch to each buffer.
+
+Tool tips for the buffers listed in the Manager Window.
+The Tool Tips display the following lines:
+	* Buffer name and number. Also flags the current buffer.
+	* Full file name, truncated with '~' for home where possible.
+	* The file type and format.
+	* Notes if the buffer is Modified or Readonly
+
+==============================================================================
+COMMANDS					*tagmabufmgr-commands*
+
+Commands for controlling the Buffer Manager from the command line.
+
+:MgrOpen                                        *MgrOpen*
+	Open the Buffer Manager Window.
+
+:MgrClose                                       *MgrClose*
+	Close the Buffer Manager window.
+
+:MgrToggle                                      *MgrToggle*
+	Toggle the Buffer Manager Window open or closed.
+
+:MgrUpdate                                      *MgrUpdate*
+	Update the Buffer Manager Window. If the cache has invalid information
+	and thus displaying something incorrectly this will flush the cache
+	and rebuild it. This is also performed when switching into the Buffer
+	Manager Window.
+
+:MgrPopUp                                       *MgrPopUp*
+	Display the Buffer SwitchTo PopUp. This is a sub-section of the
+	Right-Click PopUp menu.
+
+==============================================================================
+USAGE						*tagmabufmgr-usage*
+
+Double clicking on a buffer listed in the Buffer Manager Window will switch to
+that buffer. Any time a buffer is switched to it is done in the previous
+window, if the buffer manager was selected to perform the switch.
+
+The following keys are remapped in the Manager Buffer to make navigation
+easier. These mappings apply only within the Buffer Manager.
+	<Tab>   l w	Move to the next buffer in the list.
+	<S-Tab> h b	Move to the previous buffer in the list.
+	D d		Delete the buffer under the cursor.
+	<Cr>		Switch to the buffer under the cursor.
+	S s		Split then switch to the buffer under the cursor.
+	V v		VSplit then switch to the buffer under the cursor.
+	P p		Return the the previous window.
+	C c		Close the Buffer Manager Window.
+
+The Buffer Manager Window has a custom Right-Click PopUp Menu. This menu is
+different than the PopUp menu addition mentioned in |tagmabufmgr-features|.
+Right clicking on a buffer in the list presents options to control the Buffer
+Manager, switch to the buffer in a variety of ways and to delete a buffer.
+Note:	The custom PopUp menu only appears if the Buffer Manager Window is
+	selected before performing the Right-Click.
+
+Each buffer in the Buffer Manager List can have several flags that indicate
+the status or type of the buffer. For example here are all possible flags: >
+	[+1:MyBuffer.txt?$&]
+<
+The meaning of each flag is:
+	+ = The buffer has been modified.
+	? = The buffer is a |help| buffer.
+	$ = The Buffer is a |quickfix| or |location-list| buffer.
+	& = The buffer is not loaded, not displayed in a window.
+
+Each flag also gets a distinct color.
+	*Comment	normal buffers
+	*Identifier	the currently active buffer, flag !
+	*String		modified buffers, flag +
+	*Error		active buffer that is also modified, flags +!
+	*Type		help buffer, flag ?
+	*Special	quickfix or location list buffer, flag $
+	*Statement	unloaded or not displayed buffer, flag &
+
+==============================================================================
+MAPPINGS					*tagmabufmgr-mappings*
+
+The above commands are mapped to global key mappings.
+See |tagmabufmgr-settings| for information on controlling the key mappings.
+To use custom mappings simply configure the mapping in your |vimrc| file.
+
+Note:	The |Leader| key is normally set to "\".
+
+<Leader>tbo                                     <Plug>OpenMgr
+	Open the Buffer Manager Window. >
+                map <silent> <Leader>tbo <Plug>OpenMgr
+<
+
+<Leader>tbc                                     <Plug>CloseMgr
+	Close the Buffer Manager window. >
+                map <silent> <Leader>tbc <Plug>CloseMgr
+<
+
+<Leader>tbt                                     <Plug>ToggleMgr
+	Toggle the Buffer Manager Window open or closed. >
+                map <silent> <Leader>tbt <Plug>ToggleMgr
+<
+
+<Leader>tbu                                     <Plug>UpdateMgr
+	Update the Buffer Manager Window. If the cache has invalid information
+	and thus displaying something incorrectly this will flush the cache
+	and rebuild it. This is also performed when switching into the Buffer
+	Manager Window. >
+                map <silent> <Leader>tbu <Plug>UpdateMgr
+<
+
+<Leader>tbp                                     <Plug>ShowPopUp
+	Display the Buffer SwitchTo PopUp. This is a sub-section of the
+	Right-Click PopUp menu. >
+                map <silent> <Leader>tbp<Plug>ShowPopUp
+<
+
+
+==============================================================================
+SETTINGS					*tagmabufmgr-settings*
+
+*g:TagmaBufMgrAutoDisplay*
+	Automatically open the Buffer Manager Window when starting VIM.
+	Defaults to 1. Set to 0 to disable. >
+                let g:TagmaBufMgrAutoDisplay = 1
+<
+
+*g:TagmaBufMgrBufferNumbers*
+	Show the buffer numbers in the Buffer list.
+	Defaults to 1. Set to 0 to disable. >
+                let g:TagmaBufMgrBufferNumbers = 1
+<
+
+*g:TagmaBufMgrCloseSelect*
+	Close the manager window after selecting a buffer.
+	Defaults to 0. Set to 1 to enable. >
+                let g:TagmaBufMgrCloseSelect = 0
+<
+
+*g:TagmaBufMgrLastWindow*
+	Closing the last window (besides the Buffer Manager) quits Vim.
+	Otherwise a new window will be created.
+	Defaults to 0. Set to 1 to enable. >
+                let g:TagmaBufMgrLastWindow = 0
+<
+
+*g:TagmaBufMgrLocation*
+	The Manager Window location.
+	(T)op, (B)ottom, (L)eft, (R)ight, (F)loat
+	Defaults to (T)op. >
+                let g:TagmaBufMgrLocation = 'T'
+<
+
+*g:TagmaBufMgrMapCArrow*
+	Map Ctrl-Arrow keys to window navigation.
+	Defaults to 1. Set to 0 to disable. >
+                let g:TagmaBufMgrMapCArrow = 1
+<
+
+*g:TagmaBufMgrMapChjkl*
+	Map Ctrl-[hjkl] keys to window navigation.
+	Defaults to 1. Set to 0 to disable. >
+                let g:TagmaBufMgrMapChjkl = 1
+<
+
+*g:TagmaBufMgrMapCTab*
+	Map Ctrl-Tab and Ctrl-Shift-Tab to switch buffers in the current
+	window.
+	Defaults to 1. Set to 0 to disable. >
+                let g:TagmaBufMgrMapCTab = 1
+<
+
+*g:TagmaBufMgrPrefix*
+	Key map prefix for all commands.
+	Set to an empty string to disable keymaps.
+	Defaults to '<Leader>tb'. >
+                let g:TagmaBufMgrPrefix = '<Leader>tb'
+<
+
+*g:TagmaBufMgrPopUp*
+	Enable the addition to the Right-Click PopUp menu.
+	Adds entries to control the Buffer Manager Window and an entry to
+	switch between buffers.
+	Defaults to 1. Set to 0 to disable. >
+                let g:TagmaBufMgrPopUp = 1
+<
+
+*g:TagmaBufMgrWidth*
+	The Manager Window Width, when at the Left or Right.
+	Set to 0 to disable resizing.
+	Defaults to 25. >
+                let g:TagmaBufMgrWidth = 25
+<
+
+ vim:ts=8:sw=8:tw=78:ft=help:
