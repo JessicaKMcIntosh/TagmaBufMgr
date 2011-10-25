@@ -6,18 +6,6 @@
 " License:      Public Domain
 "
 " Description:  Simple Buffer Manager
-"
-"               Similar to existing managers but aims to be simpler in
-"               interface and code. In particular the window history is
-"               maintained when switching buffers and refreshing. So <C-W>p
-"               and <C-W>n work as expected.
-"
-"               Provides a PopUp menu interface for switching buffers and
-"               controlling the Buffer Manager.
-"
-"               Attempts to cache as much inforation about buffers as
-"               possible. This results in running less code each time the
-"               Manager functions are executed.
 " =============================================================================
 
 " Section: Initialization
@@ -87,7 +75,7 @@ call s:SetDefault('g:TagmaBufMgrWidth',         25)
 " No need for the function any longer.
 delfunction s:SetDefault
 
-" Inernal settings. {{{1
+" Internal settings. {{{1
 
 " The Buffer Manager Buffer Number.
 let g:TagmaBufMgrBufNr      = -1
