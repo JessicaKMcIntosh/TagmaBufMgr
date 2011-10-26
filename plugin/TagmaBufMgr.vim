@@ -195,7 +195,6 @@ endif
 " Create/Update an entry in the buffer cache for a specific buffer.
 " mode is what to do with the entry.
 "   A = Add as new. (Also if there is no cache entry for the buffer.)
-"   M = Update the modification flag. (Always updated.)
 "   L = Leaving a buffer.
 "   S = Update the status (Current or not).
 " buf_nr is the buffer to work with.
@@ -223,7 +222,7 @@ function! s:BufCacheEntry(mode, buf_nr)
         " When leaving a buffer clear its current status.
         let l:cache['cur'] = 0
     else
-        " Current Status.
+        " Current & Loaded Status.
         if l:cache_mode == 'A' || l:cache_mode == 'S'
             let l:cache['cur'] = (a:buf_nr == bufnr('%'))
             let l:cache['load'] = bufloaded(a:buf_nr)
@@ -248,11 +247,11 @@ function! s:BufCacheEntry(mode, buf_nr)
                     \ (l:buf_type == 'quickfix' ? '$' : '')
     endif
 
-    " Create the buffer entry from the cache data.
-    let l:cache['entry'] = s:BufCacheFormat(l:cache, a:buf_nr)
-
     " Save the cache data to the global cache.
     let g:TagmaBufMgrBufCache[a:buf_nr] = l:cache
+
+    " Create the buffer entry from the cache data.
+    call s:BufCacheFormat(a:buf_nr)
 
     " Return true.
     return 1
@@ -260,15 +259,20 @@ endfunction
 
 " Function: s:BufCacheFormat(..)    -- Format Cache Entry {{{1
 " Format a cache entry.
-" The cache hash and buffer number for the entry is passed in.
-function! s:BufCacheFormat(cache, buf_nr)
-    " Return the formatted entry.
-    return        '[' . (a:cache['mod'] ? '+' : '') .
-                \ (g:TagmaBufMgrBufferNumbers ? a:buf_nr . ':' : '') .
-                \ a:cache['name'] . a:cache['flags'] .
-                \ (a:cache['load'] ? '' : '&') .
-                \ (a:cache['cur'] ? '!' : '') . ']'
+" The buffer number to format the entry for is passed in.
+function! s:BufCacheFormat(buf_nr)
+    " Get the cache for this buffer.
+    let l:cache = g:TagmaBufMgrBufCache[a:buf_nr]
 
+    " Format the entry.
+    let l:buf_entry = '[' . (l:cache['mod'] ? '+' : '') .
+                \ (g:TagmaBufMgrBufferNumbers ? a:buf_nr . ':' : '') .
+                \ l:cache['name'] . l:cache['flags'] .
+                \ (l:cache['load'] ? '' : '&') .
+                \ (l:cache['cur'] ? '!' : '') . ']'
+
+    " Save the formatted entry to the cache.
+    let g:TagmaBufMgrBufCache[a:buf_nr]['entry'] = l:buf_entry
 endfunction
 
 " Function: s:BufCacheRefresh()     -- Full Cache Refresh {{{1
@@ -276,7 +280,6 @@ endfunction
 function! s:BufCacheRefresh()
     " Prepare to loop.
     let l:num_buffers = bufnr('$')
-    let l:prev_buf = winbufnr(winnr('#'))
     let l:cur_buf = 0
 
     " Clear the Buffer Cache.
@@ -284,8 +287,6 @@ function! s:BufCacheRefresh()
 
     " Loop over all buffers and build a list.
     while(l:cur_buf < l:num_buffers)
-        " The counting is done early so we can bail quickly if this is the
-        " Manager Buffer or one we don't want listed.
         let l:cur_buf += 1
         let l:buf_type = getbufvar(l:cur_buf, '&buftype')
         if l:cur_buf == g:TagmaBufMgrBufNr || !bufexists(l:cur_buf) ||
@@ -296,7 +297,6 @@ function! s:BufCacheRefresh()
 
         " Create the Buffer Cache Entry.
         call s:BufCacheEntry('A', l:cur_buf)
-        continue
     endwhile
 
     " Update the PopUp Menu.
@@ -310,8 +310,8 @@ endfunction
 
 " Function: s:BufCacheUpdate(...)   -- Update Cache Entry {{{1
 " Update a Buffer Cache entry then update the list and PopUp.
-" If mode is M do a quick modification check.
 " If mode is d delete the buffer.
+" If mode is m do a quick modification check.
 " If mode is u mark the buffer unloaded.
 " Otherwise mode is passed to BufCacheEntry.
 function! s:BufCacheUpdate(mode, buf_nr)
@@ -320,20 +320,30 @@ function! s:BufCacheUpdate(mode, buf_nr)
 
     " Do a quick check for modification.
     " Since this will be called often make it as quick as possible.
-    if a:mode == 'M' && (!l:in_cache ||
-                        \ g:TagmaBufMgrBufCache[a:buf_nr]['mod'] ==
-                        \ getbufvar(a:buf_nr, '&modified'))
+    if a:mode == 'm'
+        let l:buf_mod = getbufvar(a:buf_nr, '&modified')
+        if !l:in_cache || g:TagmaBufMgrBufCache[a:buf_nr]['mod'] == l:buf_mod
+            " No change, return.
+            return
+        endif
+        " Update the modification setting and update the entry.
+        let g:TagmaBufMgrBufCache[a:buf_nr]['mod'] = l:buf_mod
+        call s:BufCacheFormat(a:buf_nr)
+    elseif a:buf_nr == g:TagmaBufMgrBufNr
+        " Abort if trying to update the Buffer Manager.
         return
-    elseif a:mode == 'd' ||
-                \ (a:mode == 'u' && getbufvar(a:buf_nr, '&buftype') == 'help')
+    elseif a:mode == 'd'
         " Delete the buffer from the list.
-        " Help buffers need to be deleted on unload.
         silent! call remove(g:TagmaBufMgrBufCache, a:buf_nr)
     elseif a:mode == 'u' && l:in_cache
-        " Mark the buffer unloaded and update the entry.
-        let g:TagmaBufMgrBufCache[a:buf_nr]['load'] = 0
-        let g:TagmaBufMgrBufCache[a:buf_nr]['entry'] = 
-            \ s:BufCacheFormat(g:TagmaBufMgrBufCache[a:buf_nr], a:buf_nr)
+        if g:TagmaBufMgrBufCache[a:buf_nr]['type'] == 'help'
+            " Help buffers need to be deleted on unload.
+            silent! call remove(g:TagmaBufMgrBufCache, a:buf_nr)
+        else
+            " Mark the buffer unloaded and update the entry.
+            let g:TagmaBufMgrBufCache[a:buf_nr]['load'] = 0
+            call s:BufCacheFormat(a:buf_nr)
+        endif
     else
         " Update the entry.
         " If there was no change just return.
@@ -343,7 +353,7 @@ function! s:BufCacheUpdate(mode, buf_nr)
     endif
 
     " If checking for modification don't update the PopUp.
-    if a:mode != 'M' && g:TagmaBufMgrPopUp
+    if a:mode != 'm' && g:TagmaBufMgrPopUp
         " Update the PopUp Menu.
         call s:PopUpMenu()
     endif
@@ -414,40 +424,44 @@ endfunction
 " Controlled by the setting g:TagmaBufMgrLocation.
 function! s:CreateMgrWin()
     " Set the orientation and create the Manager Window.
+    let l:cmd_prefix = ''
     let g:TagmaBufMgrOrient = 'H'
     if g:TagmaBufMgrLocation == 'B'
-        exec 'silent! botright split' . g:TagmaBufMgrBufName
+        let l:cmd_prefix = 'botright'
     elseif g:TagmaBufMgrLocation == 'T'
-        exec 'silent! topleft split' . g:TagmaBufMgrBufName
+        let l:cmd_prefix = 'topleft'
     else
         let g:TagmaBufMgrOrient = 'V'
         if g:TagmaBufMgrLocation == 'L'
-            exec 'silent! topleft vsplit' . g:TagmaBufMgrBufName
+            let l:cmd_prefix = 'topleft'
         elseif g:TagmaBufMgrLocation == 'R'
-            exec 'silent! botright vsplit' . g:TagmaBufMgrBufName
-        elseif g:TagmaBufMgrLocation == 'F'
-            exec 'split' . g:TagmaBufMgrBufName
+            let l:cmd_prefix = 'botright'
         endif
     endif
+    exec 'silent! ' . l:cmd_prefix . ' split /' . g:TagmaBufMgrBufName
 
     " Fix the window size if not floating.
     if g:TagmaBufMgrLocation != 'F'
         setlocal winfixheight
         setlocal winfixwidth
     endif
+
+    " Change the status line.
+    "setlocal stl=%!g:TagmaBufMgrBufName
+    let &l:stl='Tagma Buffer Manager - See `:help TagmaBufMgr` for more information.'
+
+    " This gets lost for some reason.
+    setlocal nobuflisted
 endfunction
 
 " Function: s:DeleteBuf()           -- Delete Buffer {{{1
 " Delete a Buffer when the user requests.
 function! s:DeleteBuf()
-    " Determine the buffer to switch to.
+    " Determine the buffer to delete.
     let l:buf_nr = s:GetBufNr()
     if l:buf_nr == ''
         return
     endif
-
-    " Back to the previous window.
-    exec winnr('#') . 'wincmd w'
 
     " Delete the buffer.
     exec 'bd ' l:buf_nr
@@ -462,11 +476,12 @@ function! s:DisplayList()
         return
     endif
 
-    " Save the " register.
+    " Save the " register and cursor position.
     let l:save_quote = @"
+    let l:cur_pos = getpos('.')
 
     " If not already in the Manager Window save the current and previous
-    " windows then switch to the Manager.
+    " windows then switch to the Manager Window.
     if winnr() != l:mgr_winnr
         let l:prev_win = [winnr('#'), winnr()]
         exec l:mgr_winnr . 'wincmd w'
@@ -474,9 +489,10 @@ function! s:DisplayList()
 
     " Generate the list from the cache.
     let l:buf_list = values(map(copy(g:TagmaBufMgrBufCache),
-                              \ "g:TagmaBufMgrBufCache[v:key]['entry']"))
+                               \ "g:TagmaBufMgrBufCache[v:key]['entry']"))
 
     " Clear the current buffer list.
+    setlocal modifiable
     silent! normal! ggdG
 
     "  Write, Format, Resize...
@@ -492,9 +508,11 @@ function! s:DisplayList()
             exec 'vertical resize ' . g:TagmaBufMgrWidth
         endif
     endif
+    setlocal nomodifiable
 
-    " Restore the " register.
+    " Restore the " register and cursor position.
     let @" = l:save_quote
+    call setpos('.', l:cur_pos)
 
     " If we switched windows go back.
     if exists('l:prev_win')
@@ -541,12 +559,12 @@ function! s:InitMgrBuffer()
     setlocal bufhidden=hide
     setlocal buftype=nofile
     setlocal foldcolumn=0
+    setlocal formatoptions=
     setlocal matchpairs=
-    setlocal nobuflisted
+    setlocal nomodifiable
     setlocal nonumber
     setlocal noswapfile
     setlocal nowrap
-    setlocal formatoptions=
 
     " Syntax Highlighting.
     if has('syntax')
@@ -663,7 +681,7 @@ function! s:InitMgrRefresh()
 
     " Check for modification changes.
     autocmd BufWritePost,CursorHold,CursorHoldI *
-                              \ call s:BufCacheUpdate('M', expand('<abuf>'))
+                              \ call s:BufCacheUpdate('m', bufnr('%'))
 
     " Static PopUp Menu entries.
     if g:TagmaBufMgrPopUp
@@ -739,7 +757,6 @@ endfunction
 " Create the PopUp Menu additions for switching buffers.
 " Uses the Buffer Cache g:TagmaBufMgrBufCache.
 function! s:PopUpMenu()
-
     " Clear the old PopUp Menu.
     silent! unmenu PopUp.SwitchTo
 
