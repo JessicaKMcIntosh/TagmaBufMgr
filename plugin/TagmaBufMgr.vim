@@ -19,16 +19,7 @@ let g:TagmaBufMgrloaded= 1
 " Defaults {{{1
 function! s:SetDefault(option, default)
     if !exists(a:option)
-        let l:cmd = 'let ' . a:option . '='
-        let l:type = type(a:default)
-        if l:type == type("")
-            let l:cmd .= '"' . a:default . '"'
-        elseif l:type == type(0)
-            let l:cmd .= a:default
-        elseif l:type == type([])
-            let l:cmd .= string(a:default)
-        endif
-        exec l:cmd
+        execute 'let ' . a:option . '=' . string(a:default)
     endif
 endfunction
 
@@ -83,6 +74,20 @@ let g:TagmaBufMgrBufNr      = -1
 " The Buffer Manager Buffer Name.
 let g:TagmaBufMgrBufName    = '_TagmaBufMgr_'
 
+" The help text.
+let g:TagmaBufMgrHelpText   = [
+    \ '"	<Tab>   l w	Move to the next buffer in the list.',
+    \ '"	<S-Tab> h b	Move to the previous buffer in the list.',
+    \ '"	D d		Delete the buffer under the cursor.',
+    \ '"	<Cr>	O o	Switch to the buffer under the cursor.',
+    \ '"	S s		Split then switch to the buffer under the cursor.',
+    \ '"	V v		VSplit then switch to the buffer under the cursor.',
+    \ '"	P p		Return the the previous window.',
+    \ '"	C c		Close the Buffer Manager Window.',
+    \ '"	R r		Refresh the Buffer Manager Window.',
+    \ '"	? H		Display help text for the Manager.',
+    \ '"']
+
 " Auto Display & Popup {{{1
 
 if g:TagmaBufMgrAutoDisplay
@@ -111,43 +116,36 @@ command! -nargs=0 MgrToggle         call s:ToggleMgr('M')
 command! -nargs=0 MgrUpdate         call s:BufCacheRefresh()
 
 " Plugin Mappings {{{1
-if !hasmapto('<SID>CloseMgr()')
-    noremap <unique> <script> <Plug>CloseMgr        :call <SID>CloseMgr()<CR>
-endif
-if !hasmapto("<SID>OpenMgr('M')")
-    noremap <unique> <script> <Plug>OpenMgr         :call <SID>OpenMgr('M')<CR>
-endif
-if !hasmapto("<SID>ShowPopUp()") && has('menu')
-    noremap <unique> <script> <Plug>ShowPopUp       :call <SID>ShowPopUp()<CR>
-endif
-if !hasmapto("<SID>ToggleMgr('M')")
-    noremap <unique> <script> <Plug>ToggleMgr       :call <SID>ToggleMgr('M')<CR>
-endif
-if !hasmapto("<SID>BufCacheRefresh()")
-    noremap <unique> <script> <Plug>UpdateMgr       :call <SID>BufCacheRefresh()<CR>
-endif
+function! s:MapPlug(cmd, plug)
+    if !hasmapto(a:cmd)
+        execute 'noremap <unique> <script> <Plug>' . a:plug . ' :call ' . a:cmd . '<CR>'
+    endif
+endfunction
+
+call s:MapPlug("<SID>CloseMgr()",           "CloseMgr")
+call s:MapPlug("<SID>OpenMgr('M')",         "OpenMgr")
+call s:MapPlug("<SID>ShowPopUp()",          "ShowPopUp")
+call s:MapPlug("<SID>ToggleMgr('M')",       "ToggleMgr")
+call s:MapPlug("<SID>BufCacheRefresh()",    "UpdateMgr")
+
+delfunction s:MapPlug
 
 " Global Key Mappings {{{1
 if g:TagmaBufMgrPrefix != ''
-    if !hasmapto('<Plug>CloseMgr')
-        exec 'map <silent> <unique> ' . g:TagmaBufMgrPrefix . 'c <Plug>CloseMgr'
-    endif
+    function! s:MapGlobalKey(plug, key)
+        if !hasmapto(a:plug)
+            execute 'map <silent> <unique> ' .
+                        \ g:TagmaBufMgrPrefix . a:key . ' ' . a:plug
+        endif
+    endfunction
 
-    if !hasmapto('<Plug>OpenMgr')
-        exec 'map <silent> <unique> ' . g:TagmaBufMgrPrefix . 'o <Plug>OpenMgr'
-    endif
+    call s:MapGlobalKey('<Plug>CloseMgr',  'c')
+    call s:MapGlobalKey('<Plug>OpenMgr',   'o')
+    call s:MapGlobalKey('<Plug>ShowPopUp', 'p')
+    call s:MapGlobalKey('<Plug>ToggleMgr', 't')
+    call s:MapGlobalKey('<Plug>UpdateMgr', 'u')
 
-    if !hasmapto('<Plug>ShowPopUp')
-        exec 'map <silent> <unique> ' . g:TagmaBufMgrPrefix . 'p <Plug>ShowPopUp'
-    endif
-
-    if !hasmapto('<Plug>ToggleMgr')
-        exec 'map <silent> <unique> ' . g:TagmaBufMgrPrefix . 't <Plug>ToggleMgr'
-    endif
-
-    if !hasmapto('<Plug>UpdateMgr')
-        exec 'map <silent> <unique> ' . g:TagmaBufMgrPrefix . 'u <Plug>UpdateMgr'
-    endif
+    delfunction s:MapGlobalKey
 endif
 
 " Navigation Key Mappings {{{1
@@ -229,12 +227,13 @@ function! s:BufCacheEntry(mode, buf_nr)
         endif
 
         " The Buffer Name.
-        if l:cache_mode == 'A'
+        if l:cache_mode == 'A' || l:cache['noname']
             let l:buf_name = s:FindBufName(a:buf_nr)
             if l:buf_name == '' 
                 return 0
             endif
             let l:cache['name'] = l:buf_name
+            let l:cache['noname'] = (l:buf_name == 'No Name' ? 1 : 0)
         endif
     endif
 
@@ -322,7 +321,8 @@ function! s:BufCacheUpdate(mode, buf_nr)
     " Since this will be called often make it as quick as possible.
     if a:mode == 'm'
         let l:buf_mod = getbufvar(a:buf_nr, '&modified')
-        if !l:in_cache || g:TagmaBufMgrBufCache[a:buf_nr]['mod'] == l:buf_mod
+        if !l:in_cache || (g:TagmaBufMgrBufCache[a:buf_nr]['mod'] == l:buf_mod
+                    \ && !g:TagmaBufMgrBufCache[a:buf_nr]['noname'])
             " No change, return.
             return
         endif
@@ -369,6 +369,9 @@ function! BufMgrToolTips()
         let l:buf_nr = v:beval_text
     else
         let l:tip_line = getbufline(v:beval_bufnr, v:beval_lnum, v:beval_lnum)
+        if len(l:tip_line) == 0
+            return 'Buffer not loaded.'
+        endif
         let l:buf_nr = strpart(l:tip_line[0], 0, v:beval_col)
         let l:buf_nr = substitute(l:buf_nr, '.*\[+\?\(\d\+\)[^\[]\+$', '\1', '')
     endif
@@ -379,33 +382,31 @@ function! BufMgrToolTips()
         return ''
     endif
 
-    " Build the information for the Tool Tip.
+    " Get the information for the Tool Tip.
     let l:buf_name = g:TagmaBufMgrBufCache[l:buf_nr]['name']
     let l:buf_type = getbufvar(l:buf_nr, '&filetype')
     let l:buf_file = expand('#' . l:buf_nr)
-    if l:buf_file == ''
-        let l:buf_file = 'N/A'
-    else
+    if l:buf_file != ''
         let l:buf_file = fnamemodify(l:buf_file, ':p:~')
     endif
+    let l:buf_fold = getbufvar(l:buf_nr, '&foldmethod')
+    if l:buf_fold == 'marker'
+        let l:buf_fold .= '] Fold Marker: [' . getbufvar(l:buf_nr, '&foldmarker')
+    endif
 
+    " Build the Tool Tip as a list.
     let l:tool_tip = [
-                \ 'Buffer [' . l:buf_name . '] # ' . l:buf_nr .
-                    \ (l:buf_nr == bufnr('%') ? ' (Current)' : ''),
-                \ 'File Name: ' . l:buf_file,
-                \ 'Type: [' . (l:buf_type == '' ? 'N/A' : l:buf_type) . '] ' .
-                    \ 'Format: [' . getbufvar(l:buf_nr, '&fileformat') . ']',
-                \ ]
+        \ 'Buffer [' . l:buf_name . '] # ' . l:buf_nr .
+            \ (l:buf_nr == bufnr('%') ? ' (Current)' : ''),
+        \ 'File Name: ' . (l:buf_file == '' ? 'N/A' : l:buf_file),
+        \ 'Type: [' . (l:buf_type == '' ? 'N/A' : l:buf_type) . '] ' .
+            \ 'Format: [' . getbufvar(l:buf_nr, '&fileformat') . ']',
+        \ 'Fold Method: [' . l:buf_fold . ']',
+        \ (getbufvar(l:buf_nr, '&modified') ? 'Modified!' : 'Not Modified') . ' - ' .
+            \ (getbufvar(l:buf_nr, '&readonly') ? 'Readonly!' : 'Writeable'),
+        \ ]
 
-    if getbufvar(l:buf_nr, '&modified')
-        call add(l:tool_tip, 'Modified!')
-    endif
-
-    if getbufvar(l:buf_nr, '&readonly')
-        call add(l:tool_tip, 'Readonly')
-    endif
-
-    " Return the tooltip.
+    " Return the Tool Tip.
     return join(l:tool_tip, has('balloon_multiline') ? "\n" : ' ')
 endfunction
 
@@ -414,7 +415,7 @@ function! s:CloseMgr()
     " See if the Manager Window is visible.
     let l:mgr_winnr = bufwinnr(g:TagmaBufMgrBufNr)
     if l:mgr_winnr != -1
-        exec l:mgr_winnr . 'wincmd w'
+        execute l:mgr_winnr . 'wincmd w'
         wincmd c
     endif
 endfunction
@@ -438,16 +439,15 @@ function! s:CreateMgrWin()
             let l:cmd_prefix = 'botright'
         endif
     endif
-    exec 'silent! ' . l:cmd_prefix . ' split /' . g:TagmaBufMgrBufName
+    execute 'silent! ' . l:cmd_prefix . ' split ' . g:TagmaBufMgrBufName
 
-    " Fix the window size if not floating.
+    " Lock the window size if not floating.
     if g:TagmaBufMgrLocation != 'F'
         setlocal winfixheight
         setlocal winfixwidth
     endif
 
     " Change the status line.
-    "setlocal stl=%!g:TagmaBufMgrBufName
     let &l:stl='Tagma Buffer Manager - See `:help TagmaBufMgr` for more information.'
 
     " This gets lost for some reason.
@@ -459,12 +459,31 @@ endfunction
 function! s:DeleteBuf()
     " Determine the buffer to delete.
     let l:buf_nr = s:GetBufNr()
-    if l:buf_nr == ''
+    if l:buf_nr != ''
+        " Delete the buffer.
+        execute 'bd ' l:buf_nr
+    endif
+endfunction
+
+" Function: s:DisplayHelp()         -- Display Manager Help {{{1
+" Display the Buffer Manager help text.
+function! s:DisplayHelp()
+    let l:mgr_winnr = bufwinnr(g:TagmaBufMgrBufNr)
+    if l:mgr_winnr == -1 || winnr() != l:mgr_winnr
         return
     endif
 
-    " Delete the buffer.
-    exec 'bd ' l:buf_nr
+    " Display the text and resize.
+    let l:cur_pos = getpos('.')
+    setlocal modifiable
+    call append(0, g:TagmaBufMgrHelpText)
+    setlocal nomodifiable
+    if g:TagmaBufMgrOrient == 'H'
+        execute 'resize ' . line('$')
+    endif
+    normal! gg
+    let l:cur_pos[1] += len(g:TagmaBufMgrHelpText)
+    call setpos('.', l:cur_pos)
 endfunction
 
 " Function: s:DisplayList()         -- Display Buffer List {{{1
@@ -476,20 +495,20 @@ function! s:DisplayList()
         return
     endif
 
-    " Save the " register and cursor position.
-    let l:save_quote = @"
-    let l:cur_pos = getpos('.')
-
     " If not already in the Manager Window save the current and previous
     " windows then switch to the Manager Window.
     if winnr() != l:mgr_winnr
         let l:prev_win = [winnr('#'), winnr()]
-        exec l:mgr_winnr . 'wincmd w'
+        execute l:mgr_winnr . 'wincmd w'
     endif
 
     " Generate the list from the cache.
     let l:buf_list = values(map(copy(g:TagmaBufMgrBufCache),
                                \ "g:TagmaBufMgrBufCache[v:key]['entry']"))
+
+    " Save the " register and cursor position.
+    let l:save_quote = @"
+    let l:cur_pos = getpos('.')
 
     " Clear the current buffer list.
     setlocal modifiable
@@ -498,14 +517,14 @@ function! s:DisplayList()
     "  Write, Format, Resize...
     if g:TagmaBufMgrOrient == 'H'
         call setline(1, join(l:buf_list))
-        exec 'setlocal textwidth=' . &columns
+        execute 'setlocal textwidth=' . &columns
         silent! normal! gqqgg
-        exec 'resize ' . line('$')
+        execute 'resize ' . line('$')
     else
         call append(0, l:buf_list)
         normal! Gddgg
         if g:TagmaBufMgrWidth > 0 && g:TagmaBufMgrLocation != 'F'
-            exec 'vertical resize ' . g:TagmaBufMgrWidth
+            execute 'vertical resize ' . g:TagmaBufMgrWidth
         endif
     endif
     setlocal nomodifiable
@@ -516,8 +535,8 @@ function! s:DisplayList()
 
     " If we switched windows go back.
     if exists('l:prev_win')
-        exec l:prev_win[0] . 'wincmd w'
-        exec l:prev_win[1] . 'wincmd w'
+        execute l:prev_win[0] . 'wincmd w'
+        execute l:prev_win[1] . 'wincmd w'
     endif
 endfunction
 
@@ -587,7 +606,7 @@ function! s:InitMgrBuffer()
 
     " Balloon/Tool Tips settings.
     if has('balloon_eval')
-        setlocal bexpr=BufMgrToolTips()
+        setlocal balloonexpr=BufMgrToolTips()
         setlocal ballooneval
     endif
 
@@ -598,41 +617,38 @@ endfunction
 " Function: s:InitMgrKeys()         -- Initialize Manager Keys Maps {{{1
 function! s:InitMgrKeys()
     " Nagivate between buffer entries.
-    nnoremap <buffer> <silent> <TAB>            :call search('\[', 'w')<CR>
-    nnoremap <buffer> <silent> l                :call search('\[', 'w')<CR>
-    nnoremap <buffer> <silent> w                :call search('\[', 'w')<CR>
-    nnoremap <buffer> <silent> <S-TAB>          :call search('\[', 'bw')<CR>
-    nnoremap <buffer> <silent> h                :call search('\[', 'bw')<CR>
-    nnoremap <buffer> <silent> b                :call search('\[', 'bw')<CR>
+    call s:MapBufKeys(['l', 'w', '<TAB>'],      ":call search('\[', 'w')")
+    call s:MapBufKeys(['h', 'b', '<S-TAB>'],    ":call search('\[', 'bw')")
 
     " Delete buffer entres.
-    nnoremap <buffer> <silent> D                :call <SID>DeleteBuf()<CR>
-    nnoremap <buffer> <silent> d                :call <SID>DeleteBuf()<CR>
+    call s:MapBufKeys(['D', 'd'],               ":call <SID>DeleteBuf()")
 
     " Open buffer entries.
-    nnoremap <buffer> <silent> <CR>             :call <SID>SwitchBuf('N')<CR>
-    nnoremap <buffer> <silent> S                :call <SID>SwitchBuf('S')<CR>
-    nnoremap <buffer> <silent> s                :call <SID>SwitchBuf('S')<CR>
-    nnoremap <buffer> <silent> V                :call <SID>SwitchBuf('V')<CR>
-    nnoremap <buffer> <silent> v                :call <SID>SwitchBuf('V')<CR>
+    call s:MapBufKeys(['O', 'o', '<CR>'],       ":call <SID>SwitchBuf('n')")
+    call s:MapBufKeys(['S', 's'],               ":call <SID>SwitchBuf('S')")
+    call s:MapBufKeys(['V', 'v'],               ":call <SID>SwitchBuf('V')")
 
     " Return to the previous window.
-    nnoremap <buffer> <silent> p                :wincmd p<CR>
-    nnoremap <buffer> <silent> P                :wincmd p<CR>
+    call s:MapBufKeys(['P', 'p'],               ":wincmd p ")
 
-    " Close Buffer Manager.
-    nnoremap <buffer> <silent> C                :call <SID>CloseMgr()<CR>
-    nnoremap <buffer> <silent> c                :call <SID>CloseMgr()<CR>
+    " Close the Buffer Manager.
+    call s:MapBufKeys(['C', 'c'],               ":call <SID>CloseMgr()")
+
+    " Refresh the Buffer Manager.
+    call s:MapBufKeys(['R', 'r'],               ":call <SID>BufCacheRefresh()")
+
+    " Help.
+    call s:MapBufKeys(['?', 'H'],               ":call <SID>ManagerHelp()")
 
     " Manager Buffer Specific Menu.
     if has('menu')
-        anoremenu <silent>  ]BufMgr.&Close\ Mgr         :call <SID>CloseMgr()<CR>
-        anoremenu <silent>  ]BufMgr.&Refresh\ Mgr       :call <SID>BufCacheRefresh()<CR>
-        anoremenu           ]BufMgr.-Separator-         :
-        anoremenu <silent>  ]BufMgr.Switch&To           :call <SID>SwitchBuf('N')<CR>
-        anoremenu <silent>  ]BufMgr.&Split              :call <SID>SwitchBuf('S')<CR>
-        anoremenu <silent>  ]BufMgr.&Vertical           :call <SID>SwitchBuf('V')<CR>
-        anoremenu <silent>  ]BufMgr.&Delete             :call <SID>DeleteBuf()<CR>
+        anoremenu <silent>  ]BufMgr.&Close\ Mgr     :call <SID>CloseMgr()<CR>
+        anoremenu <silent>  ]BufMgr.&Refresh\ Mgr   :call <SID>BufCacheRefresh()<CR>
+        anoremenu           ]BufMgr.-Separator-     :
+        anoremenu <silent>  ]BufMgr.Switch&To       :call <SID>SwitchBuf('N')<CR>
+        anoremenu <silent>  ]BufMgr.&Split          :call <SID>SwitchBuf('S')<CR>
+        anoremenu <silent>  ]BufMgr.&Vertical       :call <SID>SwitchBuf('V')<CR>
+        anoremenu <silent>  ]BufMgr.&Delete         :call <SID>DeleteBuf()<CR>
     endif
 
     " Mouse Clicks to switch buffers.
@@ -647,21 +663,23 @@ endfunction
 " Function: s:InitMgrSyntax()       -- Initialize Syntax {{{1
 " Setup the syntax highlighting for the Manager.
 function! s:InitMgrSyntax()
-    syn match TagmaBufMgrPlain      '\[[^\]]\+\]'
-    syn match TagmaBufMgrActive     '\[[^\]]\+!\]'
-    syn match TagmaBufMgrChanged    '\[+[^\]]\+\]'
-    syn match TagmaBufMgrChgAct     '\[+[^\]]\+!\]'
-    syn match TagmaBufMgrHelp       '\[[^\]]\+?\]'
-    syn match TagmaBufMgrQFoLL      '\[[^\]]\+\$\]'
-    syn match TagmaBufMgrUnLoaded   '\[[^\]]\+&\]'
+    syn match       TagmaBufMgrPlain        '\[[^\]]\+\]'
+    syn match       TagmaBufMgrActive       '\[[^\]]\+!\]'
+    syn match       TagmaBufMgrChanged      '\[+[^\]]\+\]'
+    syn match       TagmaBufMgrChgAct       '\[+[^\]]\+!\]'
+    syn match       TagmaBufMgrHelp         '\[[^\]]\+?\]'
+    syn match       TagmaBufMgrQFoLL        '\[[^\]]\+\$\]'
+    syn match       TagmaBufMgrUnLoaded     '\[[^\]]\+&\]'
+    syn match       TagmaBufMgrHelpText     '^".*$'
 
-    hi def link TagmaBufMgrPlain    Comment
-    hi def link TagmaBufMgrActive   Identifier
-    hi def link TagmaBufMgrChanged  String
-    hi def link TagmaBufMgrChgAct   Error
-    hi def link TagmaBufMgrHelp     Type
-    hi def link TagmaBufMgrQFoLL    Special
-    hi def link TagmaBufMgrUnloaded Statement
+    hi def link     TagmaBufMgrPlain        Comment
+    hi def link     TagmaBufMgrActive       Identifier
+    hi def link     TagmaBufMgrChanged      String
+    hi def link     TagmaBufMgrChgAct       Error
+    hi def link     TagmaBufMgrHelp         Type
+    hi def link     TagmaBufMgrQFoLL        Special
+    hi def link     TagmaBufMgrUnloaded     Statement
+    hi def link     TagmaBufMgrHelpText     Comment
 endfunction
 
 " Function: s:InitMgrRefresh()      -- Initialize Manager Refresh {{{1
@@ -678,6 +696,7 @@ function! s:InitMgrRefresh()
     autocmd BufLeave        *   call s:BufCacheUpdate('L', bufnr('%'))
     autocmd BufDelete       *   call s:BufCacheUpdate('d', expand('<abuf>'))
     autocmd BufUnload       *   call s:BufCacheUpdate('u', expand('<abuf>'))
+    autocmd VimResized      *   call s:DisplayList()
 
     " Check for modification changes.
     autocmd BufWritePost,CursorHold,CursorHoldI *
@@ -699,20 +718,26 @@ endfunction
 " Controlled by g:TagmaBufMgrLastWindow.
 function! s:LastWindow()
     let l:mgr_winnr = bufwinnr(g:TagmaBufMgrBufNr)
-    if l:mgr_winnr == -1
-        return
-    endif
-
-    if winbufnr(2) == -1
-        if g:TagmaBufMgrLastWindow
-            qall
-        else
-            exec 'resize ' . &lines
-            new
-            call s:CloseMgr()
-            call s:OpenMgr('A')
+    if l:mgr_winnr != -1
+        if winbufnr(2) == -1
+            if g:TagmaBufMgrLastWindow
+                qall
+            else
+                execute 'resize ' . &lines
+                new
+                call s:CloseMgr()
+                call s:OpenMgr('A')
+            endif
         endif
     endif
+endfunction
+
+" Function: s:MapBufKeys(...)       -- Map Buffer Keys {{{1
+" Maps a list of keys to a command for the current buffer.
+function! s:MapBufKeys(keys, cmd)
+    for l:key in a:keys
+        execute 'nnoremap <buffer> <silent> ' . l:key . ' ' . a:cmd . '<CR>'
+    endfor
 endfunction
 
 " Function: s:OpenMgr(...)          -- Open/Create Manager Window {{{1
@@ -726,7 +751,7 @@ function! s:OpenMgr(mode)
         return
     endif
 
-    " Open/Create the buffer.
+    " Create/Switch the buffer.
     if l:winnr == -1
         " Create/Switch to the buffer and window.
         call s:CreateMgrWin()
@@ -735,7 +760,7 @@ function! s:OpenMgr(mode)
         execute l:winnr . 'wincmd w'
     endif
 
-    " Save the manager buffer # for later use.
+    " Save the Manager Buffer # for later use.
     let g:TagmaBufMgrBufNr= bufnr(g:TagmaBufMgrBufName)
 
     " Make sure the buffer has been initialized.
@@ -754,21 +779,16 @@ function! s:OpenMgr(mode)
 endfunction
 
 " Function: s:PopUpMenu(list)       -- PopUp Menu Addition {{{1
-" Create the PopUp Menu additions for switching buffers.
-" Uses the Buffer Cache g:TagmaBufMgrBufCache.
+" Create the PopUp Menu additions for switching buffers from the Cache.
 function! s:PopUpMenu()
     " Clear the old PopUp Menu.
     silent! unmenu PopUp.SwitchTo
 
     " Add the buffer list to the PopUp Menu.
     for l:cur_buf in sort(keys(g:TagmaBufMgrBufCache))
-        " Escape the buffer name.
         let l:buf_name = g:TagmaBufMgrBufCache[l:cur_buf]['name']
-        let l:buf_name = escape(l:buf_name . ' (' . l:cur_buf . ')', '. \')
-
-        " Add the PopUp Menu Entry.
-        exec 'nnoremenu <silent> PopUp.SwitchTo.' .
-                    \ substitute(l:buf_name, '\s', '_', 'g') .
+        execute 'nnoremenu <silent> PopUp.SwitchTo.' .
+                    \ escape(l:buf_name . ' (' . l:cur_buf . ')', '. \') .
                     \ ' :b' . l:cur_buf . '<CR>'
     endfor
 endfunction
@@ -798,16 +818,16 @@ function! s:SwitchBuf(mode)
     endif
 
     " Back to the previous window.
-    exec winnr('#') . 'wincmd w'
+    wincmd p
 
     " Switch to the buffer according to the mode.
-    if a:mode == 'N'
-        exec 'b' . l:buf_nr
-    elseif a:mode == 'S'
-        exec 'split +b' . l:buf_nr
+    let l:cmd_prefix = ''
+    if a:mode == 'S'
+        let l:cmd_prefix = 'split +'
     elseif a:mode == 'V'
-        exec 'vsplit +b' . l:buf_nr
+        let l:cmd_prefix = 'vsplit +'
     endif
+        execute l:cmd_prefix . 'b' . l:buf_nr
 
     " Close the Manager Window if requested.
     if g:TagmaBufMgrCloseSelect
@@ -822,9 +842,9 @@ endfunction
 "   P = Previous Buffer
 function! s:TabBuffer(direction)
     let l:dir_func = (a:direction == 'N' ? 'bnext' : 'bprev')
-    exec l:dir_func
+    execute l:dir_func
     if bufnr('%') == g:TagmaBufMgrBufNr
-        exec l:dir_func
+        execute l:dir_func
     endif
 endfunction
 
@@ -835,9 +855,7 @@ function! s:ToggleMgr(mode)
     let l:mgr_winnr = bufwinnr(g:TagmaBufMgrBufNr)
     if l:mgr_winnr == -1
         call s:OpenMgr(a:mode)
-        return
+    else
+        call s:CloseMgr()
     endif
-
-    " Close the Manager Window.
-    call s:CloseMgr()
 endfunction

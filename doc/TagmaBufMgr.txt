@@ -82,19 +82,24 @@ Commands for controlling the Buffer Manager from the command line.
 USAGE						*tagmabufmgr-usage*
 
 Double clicking on a buffer listed in the Buffer Manager Window will switch to
-that buffer. Any time a buffer is switched to it is done in the previous
-window, if the buffer manager was selected to perform the switch.
+that buffer. Control double clicking performs a ':split' to open the buffer.
+Shift double clicking performs a ':vsplit' to open the buffer. Any time a
+buffer is switched to it is done in the previous window if the buffer manager
+was selected to perform the switch.
 
 The following keys are remapped in the Manager Buffer to make navigation
 easier. These mappings apply only within the Buffer Manager.
 	<Tab>   l w	Move to the next buffer in the list.
 	<S-Tab> h b	Move to the previous buffer in the list.
 	D d		Delete the buffer under the cursor.
-	<Cr>		Switch to the buffer under the cursor.
+	<Cr>	O o	Switch to the buffer under the cursor.
 	S s		Split then switch to the buffer under the cursor.
 	V v		VSplit then switch to the buffer under the cursor.
 	P p		Return the the previous window.
 	C c		Close the Buffer Manager Window.
+	R r		Refresh the Buffer Manager Window.
+	? H		Display help text for the Manager.
+			Cleared when the Manager is left or updated.
 
 The Buffer Manager Window has a custom Right-Click PopUp Menu. This menu is
 different than the PopUp menu addition mentioned in |tagmabufmgr-features|.
@@ -116,7 +121,7 @@ The meaning of each flag is:
 Each flag also gets a distinct color.
 	*Comment	normal buffers
 	*Identifier	the currently active buffer, flag !
-	*String		modified buffers, flag +
+	*String		modified buffer, flag +
 	*Error		active buffer that is also modified, flags +!
 	*Type		help buffer, flag ?
 	*Special	quickfix or location list buffer, flag $
