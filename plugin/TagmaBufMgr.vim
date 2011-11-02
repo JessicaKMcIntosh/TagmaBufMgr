@@ -46,6 +46,12 @@ call s:SetDefault('g:TagmaBufMgrMapCArrow',     1)
 " Map Ctrl-[hjkl] keys to window navigation.
 call s:SetDefault('g:TagmaBufMgrMapChjkl',      1)
 
+" Map Ctrl-[hjkl] keys to switch buffers.
+call s:SetDefault('g:TagmaBufMgrMapChjklbuf',   0)
+if g:TagmaBufMgrMapChjkl
+    let g:TagmaBufMgrMapChjklbuf = 0
+endif
+
 " Map Ctrl-Tab and Ctrl-Shift-Tab to switch buffers in the current window.
 call s:SetDefault('g:TagmaBufMgrMapCTab',       1)
 
@@ -174,6 +180,19 @@ if g:TagmaBufMgrMapChjkl
     inoremap <silent> <C-j>         <Esc>:wincmd j<CR>
     inoremap <silent> <C-h>         <Esc>:wincmd h<CR>
     inoremap <silent> <C-l>         <Esc>:wincmd l<CR>
+endif
+
+" Map Ctrl-[hjkl] keys to switch buffers.
+if g:TagmaBufMgrMapChjklbuf
+    nnoremap <silent> <C-k>              :call <SID>TabBuffer('P')<CR>
+    nnoremap <silent> <C-j>              :call <SID>TabBuffer('N')<CR>
+    nnoremap <silent> <C-h>              :call <SID>TabBuffer('P')<CR>
+    nnoremap <silent> <C-l>              :call <SID>TabBuffer('N')<CR>
+
+    inoremap <silent> <C-k>         <Esc>:call <SID>TabBuffer('P')<CR>
+    inoremap <silent> <C-j>         <Esc>:call <SID>TabBuffer('N')<CR>
+    inoremap <silent> <C-h>         <Esc>:call <SID>TabBuffer('P')<CR>
+    inoremap <silent> <C-l>         <Esc>:call <SID>TabBuffer('N')<CR>
 endif
 
 " Map Ctrl-Tab and Ctrl-Shift-Tab to switch buffers in the current window.
@@ -322,7 +341,7 @@ function! s:BufCacheUpdate(mode, buf_nr)
     if a:mode == 'm'
         let l:buf_mod = getbufvar(a:buf_nr, '&modified')
         if !l:in_cache || (g:TagmaBufMgrBufCache[a:buf_nr]['mod'] == l:buf_mod
-                    \ && !g:TagmaBufMgrBufCache[a:buf_nr]['noname'])
+                     \ && !g:TagmaBufMgrBufCache[a:buf_nr]['noname'])
             " No change, return.
             return
         endif

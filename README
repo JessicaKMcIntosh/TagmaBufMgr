@@ -1,7 +1,6 @@
 *TagmaBufMgr.txt*      For Vim version 7.x.    Last Change: Thu, Oct 6, 2011
 
                    https://github.com/LStinson/TagmaBufMgr
-             http://www.vim.org/scripts/script.php?script_id=3792
                         By Lorance Stinson AT Gmail...
 
 Buffer Manager                                  *tagmabufmgr* *TagmaBufMgr*
@@ -50,7 +49,7 @@ The Tool Tips display the following lines:
 	* Buffer name and number. Also flags the current buffer.
 	* Full file name, truncated with '~' for home where possible.
 	* The file type and format.
-	* Notes if the buffer is Modified or Readonly
+	* Indicates if the buffer is Modified or Read-only
 
 Preserves the window history. This allows the command <C-W>p to work as
 expected.
@@ -96,7 +95,7 @@ easier. These mappings apply only within the Buffer Manager.
 	<Cr>	O o	Switch to the buffer under the cursor.
 	S s		Split then switch to the buffer under the cursor.
 	V v		VSplit then switch to the buffer under the cursor.
-	P p		Return the the previous window.
+	P p		Return to the previous window.
 	C c		Close the Buffer Manager Window.
 	R r		Refresh the Buffer Manager Window.
 	? H		Display help text for the Manager.
@@ -198,6 +197,9 @@ SETTINGS					*tagmabufmgr-settings*
 *g:TagmaBufMgrLocation*
 	The Manager Window location.
 	(T)op, (B)ottom, (L)eft, (R)ight, (F)loat
+        When set to (F)loat the window will not be managed/resized.
+        All other settings and TagmaBufMgr will manage the location and size
+        of the buffer. Resizing as needed.
 	Defaults to (T)op. >
 		let g:TagmaBufMgrLocation = 'T'
 <
@@ -210,8 +212,18 @@ SETTINGS					*tagmabufmgr-settings*
 
 *g:TagmaBufMgrMapChjkl*
 	Map Ctrl-[hjkl] keys to window navigation.
+	Overrides setting g:TagmaBufMgrMapChjklbuf.
 	Defaults to 1. Set to 0 to disable. >
 		let g:TagmaBufMgrMapChjkl = 1
+<
+
+*g:TagmaBufMgrMapChjklbuf*
+	Map Ctrl-[hjkl] keys to switch buffers in the current window.
+	Disabled when g:TagmaBufMgrMapChjkl is enabled.
+        Ctrl-h and Ctrl-k switch to the previous buffer.
+        Ctrl-j and Ctrl-l switch to the next buffer.
+	Defaults to 0. Set to 1 to enable. >
+		let g:TagmaBufMgrMapChjkl = 0
 <
 
 *g:TagmaBufMgrMapCTab*
