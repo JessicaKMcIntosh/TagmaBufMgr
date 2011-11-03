@@ -55,6 +55,9 @@ endif
 " Map Ctrl-Tab and Ctrl-Shift-Tab to switch buffers in the current window.
 call s:SetDefault('g:TagmaBufMgrMapCTab',       1)
 
+" Map Mouse Foward/Back to switch buffers in the current window.
+call s:SetDefault('g:TagmaBufMgrMapMouseFB',    1)
+
 " Key map prefix for all commands.
 " Set to an empty string to disable keymaps.
 call s:SetDefault('g:TagmaBufMgrPrefix',        '<Leader>tb')
@@ -202,6 +205,15 @@ if g:TagmaBufMgrMapCTab
 
     inoremap <silent> <C-TAB>      <Esc>:call <SID>TabBuffer('N')<CR>
     inoremap <silent> <C-S-TAB>    <Esc>:call <SID>TabBuffer('P')<CR>
+endif
+
+" Map Mous Foward/Back to switch buffers in the current window.
+if g:TagmaBufMgrMapMouseFB
+    nnoremap <silent> <X1Mouse>         :call <SID>TabBuffer('P')<CR>
+    nnoremap <silent> <X2Mouse>         :call <SID>TabBuffer('N')<CR>
+
+    inoremap <silent> <X1Mouse>    <Esc>:call <SID>TabBuffer('P')<CR>
+    inoremap <silent> <X2Mouse>    <Esc>:call <SID>TabBuffer('N')<CR>
 endif
 
 "}}}

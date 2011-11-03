@@ -1,6 +1,7 @@
 *TagmaBufMgr.txt*      For Vim version 7.x.    Last Change: Thu, Oct 6, 2011
 
                    https://github.com/LStinson/TagmaBufMgr
+             http://www.vim.org/scripts/script.php?script_id=3792
                         By Lorance Stinson AT Gmail...
 
 Buffer Manager                                  *tagmabufmgr* *TagmaBufMgr*
@@ -231,6 +232,14 @@ SETTINGS					*tagmabufmgr-settings*
 	window.
 	Defaults to 1. Set to 0 to disable. >
 		let g:TagmaBufMgrMapCTab = 1
+<
+
+*g:TagmaBufMgrMapMouseFB*
+        Map the Mouse Foward/Back buttons to switch buffers in the current
+        window. The mapping is for <X1Mouse> and <X2Mouse>. These might not
+        exist on all platforms.
+	Defaults to 1. Set to 0 to disable. >
+		let g:TagmaBufMgrMapMouseFB = 1
 <
 
 *g:TagmaBufMgrPrefix*
