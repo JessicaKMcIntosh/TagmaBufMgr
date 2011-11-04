@@ -224,7 +224,7 @@ SETTINGS					*tagmabufmgr-settings*
         Ctrl-h and Ctrl-k switch to the previous buffer.
         Ctrl-j and Ctrl-l switch to the next buffer.
 	Defaults to 0. Set to 1 to enable. >
-		let g:TagmaBufMgrMapChjkl = 0
+		let g:TagmaBufMgrMapChjklbuf = 0
 <
 
 *g:TagmaBufMgrMapCTab*
