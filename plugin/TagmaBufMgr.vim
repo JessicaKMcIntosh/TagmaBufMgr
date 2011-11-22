@@ -727,6 +727,7 @@ function! s:InitMgrRefresh()
     autocmd BufLeave        *   call s:BufCacheUpdate('L', bufnr('%'))
     autocmd BufDelete       *   call s:BufCacheUpdate('d', expand('<abuf>'))
     autocmd BufUnload       *   call s:BufCacheUpdate('u', expand('<abuf>'))
+    autocmd BufHidden       *   call s:BufCacheUpdate('u', expand('<afile>'))
     autocmd VimResized      *   call s:DisplayList()
 
     " Check for modification changes.
