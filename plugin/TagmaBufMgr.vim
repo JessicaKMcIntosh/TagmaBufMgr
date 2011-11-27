@@ -635,6 +635,9 @@ function! s:InitMgrBuffer()
     " Set the buffer keymaps.
     call s:InitMgrKeys()
 
+    " Set the buffer commands.
+    call s:InitMgrcmds()
+
     " Balloon/Tool Tips settings.
     if has('balloon_eval')
         setlocal balloonexpr=BufMgrToolTips()
@@ -643,6 +646,29 @@ function! s:InitMgrBuffer()
 
     " Note that the initialization has been performed.
     let b:TagmaBufMgrInit = 1
+endfunction
+
+" Function: s:InitMgrcmds()         -- Initialize Manager Commands {{{1
+" Replaces normal commands so they act on the previous window instead of the
+" Manager Window.
+function! s:InitMgrcmds()
+    " Don't switch buffers in the Manager Window.
+    cnoreabbrev <buffer> bn                     wincmd<Space>p<CR>:bn
+    cnoreabbrev <buffer> bnext                  wincmd<Space>p<CR>:bnext
+    cnoreabbrev <buffer> bp                     wincmd<Space>p<CR>:bp
+    cnoreabbrev <buffer> bprev                  wincmd<Space>p<CR>:bprev
+
+    " Don't open files in the Manager Window.
+    cnoreabbrev <buffer> e                      wincmd<Space>p<CR>:e
+    cnoreabbrev <buffer> edit                   wincmd<Space>p<CR>:edit
+    cnoreabbrev <buffer> ene                    wincmd<Space>p<CR>:ene
+    cnoreabbrev <buffer> enew                   wincmd<Space>p<CR>:enew
+    cnoreabbrev <buffer> fin                    wincmd<Space>p<CR>:fin
+    cnoreabbrev <buffer> find                   wincmd<Space>p<CR>:find
+
+    " Don't write files in the Manager Window.
+    cnoreabbrev <buffer> w                      wincmd<Space>p<CR>:w
+    cnoreabbrev <buffer> write                  wincmd<Space>p<CR>:write
 endfunction
 
 " Function: s:InitMgrKeys()         -- Initialize Manager Keys Maps {{{1

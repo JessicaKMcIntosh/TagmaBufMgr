@@ -55,6 +55,9 @@ The Tool Tips display the following lines:
 Preserves the window history. This allows the command <C-W>p to work as
 expected.
 
+Prevents files from being opened in the Buffer Manager Window. All Edit,
+Buffer and Write commands are redirected to the previous window.
+
 ==============================================================================
 COMMANDS					*tagmabufmgr-commands*
 
