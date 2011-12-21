@@ -534,8 +534,8 @@ function! s:DisplayList()
     endif
 
     " Generate the list from the cache.
-    let l:buf_list = values(map(copy(g:TagmaBufMgrBufCache),
-                               \ "g:TagmaBufMgrBufCache[v:key]['entry']"))
+    let l:buf_list = map(sort(keys(g:TagmaBufMgrBufCache), "s:SortNumeric"),
+                        \ "g:TagmaBufMgrBufCache[v:val]['entry']")
 
     " Save the " register and cursor position.
     let l:save_quote = @"
@@ -843,7 +843,7 @@ function! s:PopUpMenu()
     silent! unmenu PopUp.SwitchTo
 
     " Add the buffer list to the PopUp Menu.
-    for l:cur_buf in sort(keys(g:TagmaBufMgrBufCache))
+    for l:cur_buf in sort(keys(g:TagmaBufMgrBufCache), "s:SortNumeric")
         let l:buf_name = g:TagmaBufMgrBufCache[l:cur_buf]['name']
         execute 'nnoremenu <silent> PopUp.SwitchTo.' .
                     \ escape(l:buf_name . ' (' . l:cur_buf . ')', '. \') .
@@ -861,6 +861,13 @@ function! s:ShowPopUp()
         echo 'Menus are not supported in this version of VIM.'
         echohl NONE
     endif
+endfunction
+
+" Function: s:SortNumeric(i1, i2)   -- Numeric sort function. {{{1
+function! s:SortNumeric(i1, i2)
+    let l:i1 = a:i1 + 0
+    let l:i2 = a:i2 + 0
+    return l:i1 == l:i2 ? 0 : l:i1 > l:i2 ? 1 : -1
 endfunction
 
 " Function: s:SwitchBuf(...)        -- Switch Buffers {{{1
