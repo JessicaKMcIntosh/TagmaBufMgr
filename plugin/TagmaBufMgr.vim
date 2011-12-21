@@ -695,7 +695,7 @@ function! s:InitMgrKeys()
     call s:MapBufKeys(['R', 'r'],               ":call <SID>BufCacheRefresh()")
 
     " Help.
-    call s:MapBufKeys(['?', 'H'],               ":call <SID>ManagerHelp()")
+    call s:MapBufKeys(['?', 'H'],               ":call <SID>DisplayHelp()")
 
     " Manager Buffer Specific Menu.
     if has('menu')
