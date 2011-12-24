@@ -445,8 +445,19 @@ endfunction
 function! s:CloseMgr()
     " See if the Manager Window is visible.
     let l:mgr_winnr = bufwinnr(g:TagmaBufMgrBufNr)
-    if l:mgr_winnr != -1
+    if l:mgr_winnr == -1
+        return
+    endif
+
+    " If not already in the Manager Window save the current and previous
+    " windows then switch to the Manager Window.
+    if winnr() != l:mgr_winnr
+        let l:prev_win = [winnr('#'), winnr()]
         execute l:mgr_winnr . 'wincmd w'
+        wincmd c
+        execute l:prev_win[0] . 'wincmd w'
+        execute l:prev_win[1] . 'wincmd w'
+    else
         wincmd c
     endif
 endfunction
@@ -606,7 +617,7 @@ endfunction
 " Initialize the Manager Buffer and the auto refresh if not set.
 function! s:InitMgrBuffer()
     " Buffer Settings.
-    setlocal bufhidden=hide
+    setlocal bufhidden=delete
     setlocal buftype=nofile
     setlocal foldcolumn=0
     setlocal formatoptions=
