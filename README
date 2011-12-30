@@ -55,6 +55,9 @@ The Tool Tips display the following lines:
 Preserves the window history. This allows the command <C-W>p to work as
 expected.
 
+Prevents files from being opened in the Buffer Manager Window. All Edit,
+Buffer and Write commands are redirected to the previous window.
+
 ==============================================================================
 COMMANDS					*tagmabufmgr-commands*
 
@@ -186,6 +189,14 @@ SETTINGS					*tagmabufmgr-settings*
 	Close the manager window after selecting a buffer.
 	Defaults to 0. Set to 1 to enable. >
 		let g:TagmaBufMgrCloseSelect = 0
+<
+
+*g:TagmaBufMgrLastLine*
+	Display the Manager Window on the last line with no status line.
+        The Manager Window will be immediately above the command line and
+        below the status line of the bottom window(s).
+	Defaults to 0. Set to 1 to enable. >
+		let g:TagmaBufMgrLastLine = 0
 <
 
 *g:TagmaBufMgrLastWindow*
