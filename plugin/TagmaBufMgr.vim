@@ -32,6 +32,9 @@ call s:SetDefault('g:TagmaBufMgrBufferNumbers', 1)
 " Close the manager window after selecting a buffer.
 call s:SetDefault('g:TagmaBufMgrCloseSelect',   0)
 
+" Show the Manager Window as the last line without a status line.
+call s:SetDefault('g:TagmaBufMgrLastLine',      0)
+
 " Closing the last window (besides the Buffer Manager) quits Vim.
 " Otherwise a new window will be created.
 call s:SetDefault('g:TagmaBufMgrLastWindow',    0)
@@ -263,7 +266,7 @@ function! s:BufCacheEntry(mode, buf_nr)
             if l:buf_name == '' 
                 return 0
             endif
-            let l:cache['name'] = l:buf_name
+            let l:cache['name'] = substitute(l:buf_name, '\s', '_', 'g')
             let l:cache['noname'] = (l:buf_name == 'No Name' ? 1 : 0)
         endif
     endif
@@ -469,7 +472,7 @@ function! s:CreateMgrWin()
     " Set the orientation and create the Manager Window.
     let l:cmd_prefix = ''
     let g:TagmaBufMgrOrient = 'H'
-    if g:TagmaBufMgrLocation == 'B'
+    if g:TagmaBufMgrLocation == 'B' || g:TagmaBufMgrLastLine
         let l:cmd_prefix = 'botright'
     elseif g:TagmaBufMgrLocation == 'T'
         let l:cmd_prefix = 'topleft'
@@ -491,6 +494,14 @@ function! s:CreateMgrWin()
 
     " Change the status line.
     let &l:stl='Tagma Buffer Manager - See `:help TagmaBufMgr` for more information.'
+
+    " Save and set &laststatus.
+    if g:TagmaBufMgrLastLine && &laststatus != 0
+        let g:TagmaBufMgrLastStatusSave = &laststatus
+        set laststatus=0
+        " Restore &laststatus when the buffer is unloaded.
+        autocmd BufUnload <buffer> let &laststatus=g:TagmaBufMgrLastStatusSave
+    endif
 
     " This gets lost for some reason.
     setlocal nobuflisted

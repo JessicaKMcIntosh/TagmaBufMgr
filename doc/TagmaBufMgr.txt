@@ -191,6 +191,14 @@ SETTINGS					*tagmabufmgr-settings*
 		let g:TagmaBufMgrCloseSelect = 0
 <
 
+*g:TagmaBufMgrLastLine*
+	Display the Manager Window on the last line with no status line.
+        The Manager Window will be immediately above the command line and
+        below the status line of the bottom window(s).
+	Defaults to 0. Set to 1 to enable. >
+		let g:TagmaBufMgrLastLine = 0
+<
+
 *g:TagmaBufMgrLastWindow*
 	Closing the last window (besides the Buffer Manager) quits Vim.
 	Otherwise a new window will be created.
