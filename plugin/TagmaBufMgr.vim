@@ -242,6 +242,14 @@ function! s:BufCacheEntry(mode, buf_nr)
         let l:cache_mode = a:mode
         let l:cache = g:TagmaBufMgrBufCache[a:buf_nr]
     else
+        " Abort if the buffer is not to be listed.
+        let l:buf_type = getbufvar(a:buf_nr, '&buftype')
+        if !bufexists(a:buf_nr) ||
+                    \ (l:buf_type == 'help' && !bufloaded(a:buf_nr)) ||
+                    \ (l:buf_type != 'help' && !buflisted(a:buf_nr))
+            return 0
+        endif
+
         " New Cache entry.
         let l:cache_mode = 'A'
         let l:cache = {}
