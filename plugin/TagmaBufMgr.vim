@@ -492,7 +492,15 @@ function! s:CreateMgrWin()
             let l:cmd_prefix = 'botright'
         endif
     endif
-    execute 'silent! ' . l:cmd_prefix . ' split ' . g:TagmaBufMgrBufName
+
+    " Save the eventignore setting then disable all events.
+    " Events were causing strange behavior at times.
+    " In investigated how Tagmbar works and found this is how it avoided the
+    " same issues.
+    let l:eventignore_save = &eventignore
+    set eventignore=all
+    execute 'silent! keepalt ' . l:cmd_prefix . ' split ' . g:TagmaBufMgrBufName
+    let &eventignore = l:eventignore_save
 
     " Lock the window size if not floating.
     if g:TagmaBufMgrLocation != 'F'
@@ -636,7 +644,7 @@ endfunction
 " Initialize the Manager Buffer and the auto refresh if not set.
 function! s:InitMgrBuffer()
     " Buffer Settings.
-    setlocal bufhidden=delete
+    setlocal bufhidden=hide
     setlocal buftype=nofile
     setlocal foldcolumn=0
     setlocal formatoptions=
