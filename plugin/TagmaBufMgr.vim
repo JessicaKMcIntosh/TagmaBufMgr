@@ -644,7 +644,7 @@ endfunction
 " Initialize the Manager Buffer and the auto refresh if not set.
 function! s:InitMgrBuffer()
     " Buffer Settings.
-    setlocal bufhidden=hide
+    setlocal bufhidden=delete
     setlocal buftype=nofile
     setlocal foldcolumn=0
     setlocal formatoptions=
