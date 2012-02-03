@@ -1,12 +1,11 @@
-*TagmaBufMgr.txt*      For Vim version 7.x.    Last Change: Thu, Oct 6, 2011
-
+*TagmaBufMgr.txt* Buffer Manager
+                             For Vim version 7.x.
+                  Last Changed: Fri Feb 03 12:39 PM 2012 EST
                    https://github.com/LStinson/TagmaBufMgr
              http://www.vim.org/scripts/script.php?script_id=3792
                         By Lorance Stinson AT Gmail...
 
-Buffer Manager                                  *tagmabufmgr* *TagmaBufMgr*
-
-Contents:
+Contents:					*tagmabufmgr* *TagmaBufMgr*
 	Description				|tagmabufmgr-description|
 	Installation				|tagmabufmgr-installation|
 	Features				|tagmabufmgr-features|
