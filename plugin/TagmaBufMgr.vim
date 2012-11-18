@@ -1,7 +1,7 @@
 " vim:foldmethod=marker
 " =============================================================================
 " File:         TagmaBufMgr.vim (Plugin)
-" Last Changed: Thu, Oct 13, 2011
+" Last Changed: Sun Nov 18 02:11 PM 2012 EST
 " Maintainer:   Lorance Stinson AT Gmail...
 " License:      Public Domain
 "
@@ -74,6 +74,9 @@ endif
 " The Manager Window Width, when at the Left or Right.
 " Set to 0 to disable resizing.
 call s:SetDefault('g:TagmaBufMgrWidth',         25)
+
+" The default status line text.
+call s:SetDefault('g:TagmaBufMgrStatusLine',    'Tagma Buffer Manager - See `:help TagmaBufMgr` for more information.')
 
 " No need for the function any longer.
 delfunction s:SetDefault
@@ -509,7 +512,7 @@ function! s:CreateMgrWin()
     endif
 
     " Change the status line.
-    let &l:stl='Tagma Buffer Manager - See `:help TagmaBufMgr` for more information.'
+    let &l:stl=g:TagmaBufMgrStatusLine
 
     " Save and set &laststatus.
     if g:TagmaBufMgrLastLine && &laststatus != 0
