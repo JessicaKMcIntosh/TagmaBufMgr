@@ -763,11 +763,11 @@ endfunction
 function! s:InitMgrSyntax()
     syn match       TagmaBufMgrPlain        '\[[^\]]\+\]'
     syn match       TagmaBufMgrActive       '\[[^\]]\+!\]'
+    syn match       TagmaBufMgrUnLoaded     '\[[^\]]\+&\]'
     syn match       TagmaBufMgrChanged      '\[+[^\]]\+\]'
     syn match       TagmaBufMgrChgAct       '\[+[^\]]\+!\]'
     syn match       TagmaBufMgrHelp         '\[[^\]]\+?\]'
     syn match       TagmaBufMgrQFoLL        '\[[^\]]\+\$\]'
-    syn match       TagmaBufMgrUnLoaded     '\[[^\]]\+&\]'
     syn match       TagmaBufMgrHelpText     '^".*$'
 
     hi def link     TagmaBufMgrPlain        Comment
