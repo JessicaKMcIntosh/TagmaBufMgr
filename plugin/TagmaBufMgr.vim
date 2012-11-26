@@ -671,7 +671,7 @@ function! s:InitMgrBuffer()
     autocmd BufEnter <buffer> call s:LastWindow()
     
     " Perform a full refresh when entering the Buffer Manager.
-    autocmd BufEnter <buffer> call s:BufCacheRefresh()
+    "autocmd BufEnter <buffer> call s:BufCacheRefresh()
     
     " Set the buffer keymaps.
     call s:InitMgrKeys()
@@ -770,14 +770,14 @@ function! s:InitMgrSyntax()
     syn match       TagmaBufMgrQFoLL        '\[[^\]]\+\$\]'
     syn match       TagmaBufMgrHelpText     '^".*$'
 
-    hi def link     TagmaBufMgrPlain        Comment
-    hi def link     TagmaBufMgrActive       Identifier
-    hi def link     TagmaBufMgrChanged      String
-    hi def link     TagmaBufMgrChgAct       Error
-    hi def link     TagmaBufMgrHelp         Type
+    hi def link     TagmaBufMgrPlain        Identifier
+    hi def link     TagmaBufMgrActive       Type
+    hi def link     TagmaBufMgrChanged      Directory
+    hi def link     TagmaBufMgrChgAct       Statement
+    hi def link     TagmaBufMgrHelp         Special
     hi def link     TagmaBufMgrQFoLL        Special
-    hi def link     TagmaBufMgrUnloaded     Statement
-    hi def link     TagmaBufMgrHelpText     Comment
+    hi def link     TagmaBufMgrHelpText     String
+    hi def link     TagmaBufMgrUnloaded     Comment
 endfunction
 
 " Function: s:InitMgrRefresh()      -- Initialize Manager Refresh {{{1
