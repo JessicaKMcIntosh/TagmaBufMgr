@@ -1,7 +1,7 @@
 " vim:foldmethod=marker
 " =============================================================================
 " File:         TagmaBufMgr.vim (Plugin)
-" Last Changed: Sun Nov 18 02:11 PM 2012 EST
+" Last Changed: Mon Nov 26 01:39 PM 2012 EST
 " Maintainer:   Lorance Stinson AT Gmail...
 " License:      Public Domain
 "
@@ -268,7 +268,7 @@ function! s:BufCacheEntry(mode, buf_nr)
         " Current & Loaded Status.
         if l:cache_mode == 'A' || l:cache_mode == 'S'
             let l:cache['cur'] = (a:buf_nr == bufnr('%'))
-            let l:cache['load'] = bufloaded(a:buf_nr)
+            let l:cache['load'] = (bufwinnr(a:buf_nr) != -1)
         endif
 
         " The Buffer Name.

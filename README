@@ -1,6 +1,6 @@
 *TagmaBufMgr.txt* Buffer Manager
                              For Vim version 7.x.
-                  Last Changed: Fri Feb 03 12:39 PM 2012 EST
+                  Last Changed: Mon Nov 26 01:39 PM 2012 EST
                    https://github.com/LStinson/TagmaBufMgr
              http://www.vim.org/scripts/script.php?script_id=3792
                         By Lorance Stinson AT Gmail...
@@ -122,13 +122,13 @@ The meaning of each flag is:
 	& = The buffer is not loaded, not displayed in a window.
 
 Each flag also gets a distinct color.
-	*Comment	normal buffers
+	*Comment	normal buffers, visible in a window
 	*Identifier	the currently active buffer, flag !
 	*String		modified buffer, flag +
 	*Error		active buffer that is also modified, flags +!
 	*Type		help buffer, flag ?
 	*Special	quickfix or location list buffer, flag $
-	*Statement	unloaded or not displayed buffer, flag &
+	*Statement	unloaded or hidden buffer, flag &
 
 ==============================================================================
 MAPPINGS					*tagmabufmgr-mappings*
@@ -272,6 +272,11 @@ SETTINGS					*tagmabufmgr-settings*
 	Set to 0 to disable resizing.
 	Defaults to 25. >
 		let g:TagmaBufMgrWidth = 25
+<
+
+*g:TagmaBufMgrStatusLine*
+	Default status line text when visible. >
+		let g:TagmaBufMgrStatusLine = 'FooBar'
 <
 
  vim:ts=8:sw=8:tw=78:ft=help:
