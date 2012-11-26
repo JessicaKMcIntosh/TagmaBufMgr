@@ -1,6 +1,6 @@
 *TagmaBufMgr.txt* Buffer Manager
                              For Vim version 7.x.
-                  Last Changed: Mon Nov 26 01:39 PM 2012 EST
+                  Last Changed: Mon Nov 26 01:52 PM 2012 EST
                    https://github.com/LStinson/TagmaBufMgr
              http://www.vim.org/scripts/script.php?script_id=3792
                         By Lorance Stinson AT Gmail...
@@ -13,6 +13,7 @@ Contents:					*tagmabufmgr* *TagmaBufMgr*
 	Usage					|tagmabufmgr-usage|
 	Key Mappings				|tagmabufmgr-mappings|
 	Settings				|tagmabufmgr-settings|
+	Color Scheme				|tagmabufmgr-colors|
 
 ==============================================================================
 DESCRIPTION					*tagmabufmgr-description*
@@ -172,6 +173,9 @@ Note:	The |Leader| key is normally set to "\".
 ==============================================================================
 SETTINGS					*tagmabufmgr-settings*
 
+To change the behavior of the Buffer Manager these settings can be placed in
+your |vimrc| file.
+
 *g:TagmaBufMgrAutoDisplay*
 	Automatically open the Buffer Manager Window when starting VIM.
 	Defaults to 1. Set to 0 to disable. >
@@ -277,6 +281,23 @@ SETTINGS					*tagmabufmgr-settings*
 *g:TagmaBufMgrStatusLine*
 	Default status line text when visible. >
 		let g:TagmaBufMgrStatusLine = 'FooBar'
+<
+
+==============================================================================
+COLOR SCHEME					*tagmabufmgr-colors*
+
+The color scheme can be changed by including higlight definitions in your
+|vimrc| file. See |syntax| for more information on syntax highlighting.
+
+>
+	hi def link     TagmaBufMgrPlain        Identifier
+	hi def link     TagmaBufMgrActive       Type
+	hi def link     TagmaBufMgrChanged      Directory
+	hi def link     TagmaBufMgrChgAct       Statement
+	hi def link     TagmaBufMgrHelp         Special
+	hi def link     TagmaBufMgrQFoLL        Special
+	hi def link     TagmaBufMgrHelpText     String
+	hi def link     TagmaBufMgrUnloaded     Comment
 <
 
  vim:ts=8:sw=8:tw=78:ft=help:
