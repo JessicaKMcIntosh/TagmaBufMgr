@@ -1,7 +1,7 @@
 " vim:foldmethod=marker
 " =============================================================================
 " File:         TagmaBufMgr.vim (Plugin)
-" Last Changed: Mon Nov 26 01:39 PM 2012 EST
+" Last Changed: Mon Nov 26 02:05 PM 2012 EST
 " Maintainer:   Lorance Stinson AT Gmail...
 " License:      Public Domain
 "
@@ -763,11 +763,11 @@ endfunction
 function! s:InitMgrSyntax()
     syn match       TagmaBufMgrPlain        '\[[^\]]\+\]'
     syn match       TagmaBufMgrActive       '\[[^\]]\+!\]'
+    syn match       TagmaBufMgrUnLoaded     '\[[^\]]\+&\]'
     syn match       TagmaBufMgrChanged      '\[+[^\]]\+\]'
     syn match       TagmaBufMgrChgAct       '\[+[^\]]\+!\]'
     syn match       TagmaBufMgrHelp         '\[[^\]]\+?\]'
     syn match       TagmaBufMgrQFoLL        '\[[^\]]\+\$\]'
-    syn match       TagmaBufMgrUnLoaded     '\[[^\]]\+&\]'
     syn match       TagmaBufMgrHelpText     '^".*$'
 
     hi def link     TagmaBufMgrPlain        Comment

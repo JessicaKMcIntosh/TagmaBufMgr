@@ -1,6 +1,6 @@
 *TagmaBufMgr.txt* Buffer Manager
                              For Vim version 7.x.
-                  Last Changed: Mon Nov 26 01:52 PM 2012 EST
+                  Last Changed: Mon Nov 26 02:13 PM 2012 EST
                    https://github.com/LStinson/TagmaBufMgr
              http://www.vim.org/scripts/script.php?script_id=3792
                         By Lorance Stinson AT Gmail...
@@ -114,18 +114,20 @@ Note:	The custom PopUp menu only appears if the Buffer Manager Window is
 
 Each buffer in the Buffer Manager List can have several flags that indicate
 the status or type of the buffer. For example here are all possible flags: >
-	[+1:MyBuffer.txt?$&]
+	[+1:MyBuffer.txt!?$&]
 <
 The meaning of each flag is:
 	+ = The buffer has been modified.
+	! = The buffer is the active buffer.
 	? = The buffer is a |help| buffer.
 	$ = The Buffer is a |quickfix| or |location-list| buffer.
-	& = The buffer is not loaded, not displayed in a window.
+	& = The buffer is not loaded or hidden.
 
 Each flag also gets a distinct color.
 	*Comment	normal buffers, visible in a window
 	*Identifier	the currently active buffer, flag !
 	*String		modified buffer, flag +
+        		(takes precedence over the flag &)
 	*Error		active buffer that is also modified, flags +!
 	*Type		help buffer, flag ?
 	*Special	quickfix or location list buffer, flag $
