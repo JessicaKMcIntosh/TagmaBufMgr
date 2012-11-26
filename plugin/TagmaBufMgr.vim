@@ -671,7 +671,7 @@ function! s:InitMgrBuffer()
     autocmd BufEnter <buffer> call s:LastWindow()
     
     " Perform a full refresh when entering the Buffer Manager.
-    autocmd BufEnter <buffer> call s:BufCacheRefresh()
+    "autocmd BufEnter <buffer> call s:BufCacheRefresh()
     
     " Set the buffer keymaps.
     call s:InitMgrKeys()
