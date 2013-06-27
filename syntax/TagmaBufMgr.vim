@@ -1,7 +1,7 @@
 " =============================================================================
 " File:         TagmaBufMgr.vim (Syntax)
-" Last Changed: Thu Jun 27 10:53 AM 2013 EDT
-" Maintainer:   Lorance Stinson AT Gmail...
+" Last Changed: Thu Jun 27 12:52 PM 2013 EDT
+" Maintainer:   Jessica K McIntosh AT Gmail...
 " License:      Public Domain
 "
 " Description:  Syntax highlighting for TagmaBufMgr

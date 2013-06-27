@@ -1,8 +1,8 @@
 " vim:foldmethod=marker
 " =============================================================================
 " File:         TagmaBufMgr.vim (Plugin)
-" Last Changed: Thu Jun 27 10:53 AM 2013 EDT
-" Maintainer:   Lorance Stinson AT Gmail...
+" Last Changed: Thu Jun 27 12:51 PM 2013 EDT
+" Maintainer:   Jessica K McIntosh AT Gmail...
 " License:      Public Domain
 "
 " Description:  Simple Buffer Manager
