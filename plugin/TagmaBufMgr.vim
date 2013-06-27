@@ -1,7 +1,7 @@
 " vim:foldmethod=marker
 " =============================================================================
 " File:         TagmaBufMgr.vim (Plugin)
-" Last Changed: Mon Nov 26 02:05 PM 2012 EST
+" Last Changed: Thu Jun 27 10:53 AM 2013 EDT
 " Maintainer:   Lorance Stinson AT Gmail...
 " License:      Public Domain
 "
