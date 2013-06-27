@@ -274,7 +274,7 @@ function! s:BufCacheEntry(mode, buf_nr)
         " The Buffer Name.
         if l:cache_mode == 'A' || l:cache['noname']
             let l:buf_name = s:FindBufName(a:buf_nr)
-            if l:buf_name == '' 
+            if l:buf_name == ''
                 return 0
             endif
             let l:cache['name'] = substitute(l:buf_name, '\s', '_', 'g')
@@ -286,7 +286,7 @@ function! s:BufCacheEntry(mode, buf_nr)
     let l:buf_type = getbufvar(a:buf_nr, '&buftype')
     if l:cache_mode == 'A' || l:cache['type'] != l:buf_type
         let l:cache['type'] = l:buf_type
-        let l:cache['flags'] = 
+        let l:cache['flags'] =
                     \ (l:buf_type == 'help' ? '?' : '') .
                     \ (l:buf_type == 'quickfix' ? '$' : '')
     endif
@@ -563,7 +563,7 @@ endfunction
 function! s:DisplayList()
     " If the Manager is not visible nothing to do.
     let l:mgr_winnr = bufwinnr(g:TagmaBufMgrBufNr)
-    if l:mgr_winnr == -1 
+    if l:mgr_winnr == -1
         return
     endif
 
@@ -656,11 +656,8 @@ function! s:InitMgrBuffer()
     setlocal nonumber
     setlocal noswapfile
     setlocal nowrap
-
-    " Syntax Highlighting.
-    if has('syntax')
-        call s:InitMgrSyntax()
-    endif
+    setlocal filetype=TagmaBufMgr
+    setlocal noreadonly
 
     " Make sure the cache and Auto Rrefresh were setup.
     if !exists('g:TagmaBufMgrBufCache')
@@ -669,10 +666,10 @@ function! s:InitMgrBuffer()
 
     " Check if there are no other windows when entering the Bufffer Manager.
     autocmd BufEnter <buffer> call s:LastWindow()
-    
+
     " Perform a full refresh when entering the Buffer Manager.
     autocmd BufEnter <buffer> call s:BufCacheRefresh()
-    
+
     " Set the buffer keymaps.
     call s:InitMgrKeys()
 
@@ -756,28 +753,6 @@ function! s:InitMgrKeys()
         nnoremap <buffer> <silent> <S-LEFTMOUSE>    :call <SID>SwitchBuf('V')<CR>
         nnoremap <buffer> <silent> <RIGHTMOUSE>     :popup! ]BufMgr<CR>
     endif
-endfunction
-
-" Function: s:InitMgrSyntax()       -- Initialize Syntax {{{1
-" Setup the syntax highlighting for the Manager.
-function! s:InitMgrSyntax()
-    syn match       TagmaBufMgrPlain        '\[[^\]]\+\]'
-    syn match       TagmaBufMgrActive       '\[[^\]]\+!\]'
-    syn match       TagmaBufMgrUnLoaded     '\[[^\]]\+&\]'
-    syn match       TagmaBufMgrChanged      '\[+[^\]]\+\]'
-    syn match       TagmaBufMgrChgAct       '\[+[^\]]\+!\]'
-    syn match       TagmaBufMgrHelp         '\[[^\]]\+?\]'
-    syn match       TagmaBufMgrQFoLL        '\[[^\]]\+\$\]'
-    syn match       TagmaBufMgrHelpText     '^".*$'
-
-    hi def link     TagmaBufMgrPlain        Comment
-    hi def link     TagmaBufMgrActive       Identifier
-    hi def link     TagmaBufMgrChanged      String
-    hi def link     TagmaBufMgrChgAct       Error
-    hi def link     TagmaBufMgrHelp         Type
-    hi def link     TagmaBufMgrQFoLL        Special
-    hi def link     TagmaBufMgrUnloaded     Statement
-    hi def link     TagmaBufMgrHelpText     Comment
 endfunction
 
 " Function: s:InitMgrRefresh()      -- Initialize Manager Refresh {{{1
