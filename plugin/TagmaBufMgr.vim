@@ -1,7 +1,7 @@
 " vim:foldmethod=marker
 " =============================================================================
 " File:         TagmaBufMgr.vim (Plugin)
-" Last Changed: Thu Jun 27 12:51 PM 2013 EDT
+" Last Changed: Fri Oct 18 12:14 PM 2013 EDT
 " Maintainer:   Jessica K McIntosh AT Gmail...
 " License:      Public Domain
 "
@@ -87,7 +87,12 @@ delfunction s:SetDefault
 let g:TagmaBufMgrBufNr      = -1
 
 " The Buffer Manager Buffer Name.
-let g:TagmaBufMgrBufName    = '_TagmaBufMgr_'
+if exists('g:TagmaBufMgrBufName')
+    "let g:TagmaBufMgrBufName    = escape(g:TagmaBufMgrBufName, '`" ' . "'\t")
+    let g:TagmaBufMgrBufName    = fnameescape(g:TagmaBufMgrBufName)
+else
+    let g:TagmaBufMgrBufName    = '_TagmaBufMgr_'
+endif
 
 " The help text.
 let g:TagmaBufMgrHelpText   = [
